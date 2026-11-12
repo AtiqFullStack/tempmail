@@ -1,0 +1,33 @@
+From: =?UTF-8?B?T2zDoSDwn4y/?= <sender@example.org>
+To: wrong-header@example.org
+Cc: other@example.org
+Subject: =?UTF-8?B?SGVsbG8g8J+Mjw==?=
+Message-ID: <fixture-001@example.org>
+Date: Thu, 12 Nov 2026 10:00:00 +0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="mixed-boundary"
+
+--mixed-boundary
+Content-Type: multipart/alternative; boundary="body-boundary"
+
+--body-boundary
+Content-Type: text/plain; charset=UTF-8
+
+Hello from the sample email. This is a real ingestion fixture.
+--body-boundary
+Content-Type: text/html; charset=UTF-8
+
+<html><body><h1>Hello from the sample email</h1><p>A real ingestion fixture.</p><script>alert('unsafe')</script><img src="https://tracker.invalid/pixel"><a href="javascript:alert(1)">Bad link</a><a href="https://example.org">Example</a></body></html>
+--body-boundary--
+--mixed-boundary
+Content-Type: text/plain; name="readme.txt"
+Content-Disposition: attachment; filename="readme.txt"
+Content-Transfer-Encoding: base64
+
+VGhpcyBpcyBhIHNhZmUgdGVzdCBhdHRhY2htZW50Lgo=
+--mixed-boundary
+Content-Type: application/javascript; name="bad.js"
+Content-Disposition: attachment; filename="bad.js"
+
+alert('not stored');
+--mixed-boundary--

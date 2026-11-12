@@ -3,23 +3,39 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 1117",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start --port 1117",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --import tsx --test --test-concurrency=1 tests/*.test.ts",
+    "mail:receive": "node --import tsx workers/receive-mail.js",
+    "db:indexes": "node --import tsx scripts/init-db.ts",
+    "test:ingest": "node --import tsx scripts/local-ingestion.ts",
+    "test:http": "node --import tsx tests/http-smoke.ts"
   },
   "dependencies": {
+    "dotenv": "^18.0.10",
+    "lucide-react": "^1.72.0",
     "next": "16.4.6",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "sanitize-html": "^2.18.2",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7",
+    "mongoose": "^9.12.1",
+    "mailparser": "^3.14.3"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
+    "@types/mailparser": "^3.9.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "mongodb-memory-server": "^11.3.0",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   },
@@ -31,5 +47,8 @@
   "trustedDependencies": [
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "engines": {
+    "node": ">=22.12.0 <25"
+  }
 }
