@@ -1,0 +1,23 @@
+From: Example Portal <sender@example.org>
+To: styled-test@email.fzeetechz.com
+Subject: Styled email rendering regression
+Message-ID: <styled-email-001@example.org>
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+
+<!doctype html>
+<html><head><title>Example Portal</title>
+<style>
+body { font-family: Arial, sans-serif; background-color: #f8fafc; }
+.card { max-width: 480px; margin: 0 auto; padding: 24px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; }
+.heading { color: #4f46e5; font-size: 20px; font-weight: 700; }
+.code { color: #4f46e5; font-family: monospace; font-size: 36px; font-weight: 700; letter-spacing: 8px; line-height: 1.5; text-align: center; padding: 24px 0; }
+</style></head>
+<body><div class="card"><h1 class="heading">Example Portal</h1>
+<p style="font-size:13px;color:#64748b">Project Infrastructure Portal</p>
+<hr style="border:0;border-top:1px solid #e2e8f0;margin:16px 0">
+<p>Hi <strong>test</strong>,</p><p>Use the example code below to verify your email:</p>
+<div class="code">123456</div>
+<p style="font-size:13px;color:#64748b">This is a rendering test, not a real verification code.</p>
+<table role="presentation" width="100%" cellpadding="8" cellspacing="0"><tr><td align="center" bgcolor="#eef2ff">Table layout is preserved.</td></tr></table>
+</div></body></html>

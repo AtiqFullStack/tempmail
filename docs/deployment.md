@@ -60,7 +60,7 @@ The integration suite downloads a roughly 77 MB isolated MongoDB test binary on 
 
 Use [nginx.conf](nginx.conf) as a **new dedicated vhost**. The rate zone belongs inside the existing `http {}` context, outside server blocks. Issue a TLS certificate for `email.fzeetechz.com` using your existing ACME process before enabling the TLS configuration. Preserve all other vhosts. Do not modify the default server. Back up the existing configuration, run `sudo nginx -t`, then manually reload Nginx. Avoid proxy caching for inboxes/API/attachments. If using a CDN, configure Nginx real IP trust only for verified CDN ranges before trusting its derived client address; do not trust arbitrary forwarded headers.
 
-`X-Real-IP` is overwritten at Nginx. Application rate limiting uses shared MongoDB minute buckets (120 requests/minute/client across all APIs); Nginx adds a 2 requests/second limit with burst 15. Without the trusted reverse proxy, the application deliberately shares one direct bucket instead of trusting spoofed client headers. Restrict the Next port to loopback. Security headers are supplied by Next, and HTTPS HSTS by the TLS vhost. The HTML viewer has a separate restrictive CSP and sandbox, no scripts, forms, remote images or styles. Allowed links open separately with no referrer/opener.
+`X-Real-IP` is overwritten at Nginx. Application rate limiting uses shared MongoDB minute buckets (120 requests/minute/client across all APIs); Nginx adds a 2 requests/second limit with burst 15. Without the trusted reverse proxy, the application deliberately shares one direct bucket instead of trusting spoofed client headers. Restrict the Next port to loopback. Security headers are supplied by Next, and HTTPS HSTS by the TLS vhost. The HTML viewer has a separate restrictive CSP and sandbox, no scripts, forms, remote images or remote styles. Safe inline colors, typography, spacing, borders, and table layout are preserved. Embedded stylesheet rules are inlined locally using Juice, then filtered through a strict CSS property/value allowlist; external stylesheets, web fonts, CSS URLs, positioning, and animation are discarded. Selector work is bounded; oversized templates fall back to inline-style sanitization. The viewer defaults to HTML when available, with plain text selectable. Allowed links open separately with no referrer/opener.
 
 ## DNS and SMTP connectivity
 
@@ -108,6 +108,10 @@ Health returns only a database connection result and timestamp; it does not asse
 ## Rollback
 
 Keep previous code/build and configuration snapshots. Stop/restart only `fzeetechz-tempmail`, switch to the previous release, and restart that named process. Restore only this Nginx vhost after `nginx -t`. For Postfix, follow its separate rollback section, validate and reload; preserve queued mail and other domains. No database migration destroys data. Retention/TTL settings need explicit review if changed after initial index creation: changing the environment affects new messages, not an existing message's expiry or existing TTL index definition.
+
+## HTML rendering updates
+
+Sanitization runs when the worker receives a message. Previously stored messages whose styling was already removed cannot recover it: resend a fresh email after deployment. Install the updated dependencies, rebuild/restart the web app, and deploy the updated worker source; Postfix pipe invocations load the new source on their next delivery. Keep `tsx` and `juice` installed as production dependencies. No Postfix routing or firewall changes are needed for this rendering fix.
 
 ## Known boundaries
 

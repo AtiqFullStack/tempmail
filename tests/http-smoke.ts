@@ -81,6 +81,20 @@ import { Email } from "../models/Email";
     );
     assert.equal(attachment.status, 200);
     assert.match(await attachment.text(), /safe test attachment/);
+    await ingest(
+      await readFile("tests/fixtures/styled-email.eml"),
+      ["styled-http@email.fzeetechz.com"],
+      "sender@example.org",
+    );
+    const styledList = await (
+      await fetch(`${base}/api/inbox/styled-http`)
+    ).json();
+    const styledDetail = await (
+      await fetch(`${base}/api/emails/${styledList.messages[0]._id}`)
+    ).json();
+    assert.match(styledDetail.sanitizedHtml, /font-size:36px/);
+    assert.match(styledDetail.sanitizedHtml, /letter-spacing:8px/);
+    assert.match(styledDetail.sanitizedHtml, /color:#4f46e5/);
     await Email.updateOne(
       { _id: id },
       { $set: { expiresAt: new Date(Date.now() - 1000) } },

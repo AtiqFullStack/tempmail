@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["mongoose", "sanitize-html"],
+  serverExternalPackages: ["mongoose", "sanitize-html", "juice"],
   poweredByHeader: false,
   turbopack: {
     rules: { "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" } },

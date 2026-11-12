@@ -20,6 +20,7 @@ import {
 import { Header, Footer, Toast, copyAddress } from "./shell";
 import { domain } from "./address-form";
 import type { Mail, InboxResponse } from "@/types/mail";
+import { emailDocument } from "@/lib/email-document";
 async function request<T>(url: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(url, { signal, cache: "no-store" });
   const data = await response.json();
@@ -153,6 +154,7 @@ export default function InboxClient({ username }: { username: string }) {
         controller.signal,
       );
       setDetail(message);
+      setFormat(message.sanitizedHtml ? "html" : "text");
       setRead((previous) => {
         const next = [...new Set([...previous, id])].slice(-500);
         try {
@@ -437,7 +439,7 @@ export default function InboxClient({ username }: { username: string }) {
                         title="Sanitized email content"
                         sandbox="allow-popups allow-popups-to-escape-sandbox"
                         referrerPolicy="no-referrer"
-                        srcDoc={`<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; form-action 'none'; base-uri 'none'"><style>body{font:14px/1.7 system-ui;color:#263b30;padding:16px;overflow-wrap:anywhere}table{max-width:100%}a{color:#267454}pre{white-space:pre-wrap}</style></head><body>${detail.sanitizedHtml}</body></html>`}
+                        srcDoc={emailDocument(detail.sanitizedHtml || "")}
                       />
                     )}{" "}
                     {!!detail.attachments.length && (

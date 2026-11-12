@@ -69,7 +69,7 @@ export function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>
-          © {new Date().getFullYear()} FzeeTechz. Made for a lighter inbox.
+          © {new Date().getFullYear()} Fzeetechz Pvt Ltd. Made for a lighter inbox.
         </span>
         <span>Receive only. No registration. No fuss.</span>
       </div>

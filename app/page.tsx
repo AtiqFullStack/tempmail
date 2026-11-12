@@ -235,7 +235,9 @@ export default function Home() {
             </span>
             <h2>A fresh address is a click away.</h2>
           </div>
-          <Link href="#get-address" className="button primary">
+          <Link href="#get-address" className="button primary" style={{
+            color:"white"
+          }}>
             Get my temporary email <ArrowRight size={18} />
           </Link>
         </section>

@@ -16,15 +16,16 @@
   },
   "dependencies": {
     "dotenv": "^18.0.10",
+    "juice": "^12.2.3",
     "lucide-react": "^1.72.0",
+    "mailparser": "^3.14.3",
+    "mongoose": "^9.12.1",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "sanitize-html": "^2.18.2",
     "tsx": "^4.23.15",
-    "zod": "^4.6.7",
-    "mongoose": "^9.12.1",
-    "mailparser": "^3.14.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",

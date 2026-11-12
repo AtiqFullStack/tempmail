@@ -265,6 +265,27 @@ test("interrupted delivery receipts preserve original expiry even after TTL clea
   assert.equal((await Receipt.findById(email.deliveryId)).completed, true);
 });
 
+test("styled MIME persists and the detail API retains safe presentation CSS", async () => {
+  await ingest(
+    await readFile("tests/fixtures/styled-email.eml"),
+    ["styled-test@email.fzeetechz.com"],
+    "sender@example.org",
+  );
+  const email = await Email.findOne({
+    envelopeRecipient: "styled-test@email.fzeetechz.com",
+  });
+  const response = await detailGET(new Request("http://localhost"), {
+    params: Promise.resolve({ id: String(email._id) }),
+  });
+  assert.equal(response.status, 200);
+  const detail = await response.json();
+  assert.match(detail.sanitizedHtml, /font-size:36px/);
+  assert.match(detail.sanitizedHtml, /letter-spacing:8px/);
+  assert.match(detail.sanitizedHtml, /color:#4f46e5/);
+  assert.match(detail.sanitizedHtml, /max-width:480px/);
+  assert.doesNotMatch(detail.sanitizedHtml, /<style|<script|<link/);
+});
+
 test("API rate limit is shared and returns 429 with retry-after", async () => {
   const key = (await import("node:crypto"))
     .createHash("sha256")
