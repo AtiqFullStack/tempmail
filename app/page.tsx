@@ -31,10 +31,10 @@ const faqs = [
   ],
   [
     "Can I send or reply to an email?",
-    "No. TempMail only receives email. Sending, replies, and forwarding are not supported.",
+    "No. Mailizator only receives email. Sending, replies, and forwarding are not supported.",
   ],
   [
-    "What can I use TempMail for?",
+    "What can I use Mailizator for?",
     "Try out a service, receive a non-sensitive download link, or test your own email integration. Some services block temporary email addresses. Avoid banking, account recovery, personal documents, and anything you need to keep.",
   ],
   [
@@ -235,9 +235,13 @@ export default function Home() {
             </span>
             <h2>A fresh address is a click away.</h2>
           </div>
-          <Link href="#get-address" className="button primary" style={{
-            color:"white"
-          }}>
+          <Link
+            href="#get-address"
+            className="button primary"
+            style={{
+              color: "white",
+            }}
+          >
             Get my temporary email <ArrowRight size={18} />
           </Link>
         </section>

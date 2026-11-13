@@ -16,8 +16,8 @@ let raw: Buffer;
 before(async () => {
   server = await MongoMemoryServer.create({ binary: { version: "8.0.17" } });
   process.env.MONGODB_URI = server.getUri("tempmail_test");
-  process.env.MAIL_DOMAIN = "email.fzeetechz.com";
-  process.env.NEXT_PUBLIC_MAIL_DOMAIN = "email.fzeetechz.com";
+  process.env.MAIL_DOMAIN = "mailizator.com";
+  process.env.NEXT_PUBLIC_MAIL_DOMAIN = "mailizator.com";
   await connectDB();
   await ensureIndexes();
   raw = await readFile("tests/fixtures/sample.eml");
@@ -52,23 +52,19 @@ function worker(args: string[], payload: Buffer, env = {}) {
 test("durable ingestion respects envelope, Unicode, safe attachments, duplicates and multiple recipients", async () => {
   await ingest(
     raw,
-    [
-      "alice@email.fzeetechz.com",
-      "BOB@email.fzeetechz.com",
-      "alice@email.fzeetechz.com",
-    ],
+    ["alice@mailizator.com", "BOB@mailizator.com", "alice@mailizator.com"],
     "sender@example.org",
   );
   assert.equal(await Email.countDocuments(), 2);
   await ingest(
     raw,
-    ["alice@email.fzeetechz.com", "bob@email.fzeetechz.com"],
+    ["alice@mailizator.com", "bob@mailizator.com"],
     "sender@example.org",
   );
   assert.equal(await Email.countDocuments(), 2);
   assert.equal(await Receipt.countDocuments(), 2);
   const message = await Email.findOne({
-    envelopeRecipient: "alice@email.fzeetechz.com",
+    envelopeRecipient: "alice@mailizator.com",
   }).select("+attachments.data");
   assert.equal(message.subject, "Hello 🌏");
   assert.match(message.to, /wrong-header/);
@@ -108,7 +104,7 @@ test("inbox API projects safely, paginates, sorts, validates and health pings Mo
 });
 test("detail and attachment APIs hide internals and force safe download", async () => {
   const email = await Email.findOne({
-    envelopeRecipient: "alice@email.fzeetechz.com",
+    envelopeRecipient: "alice@mailizator.com",
   });
   const id = String(email._id),
     attachmentId = String(email.attachments[0]._id);
@@ -140,7 +136,7 @@ test("detail and attachment APIs hide internals and force safe download", async 
 });
 test("expired messages are immediately hidden in list/detail/download before TTL cleanup; retries do not resurrect them", async () => {
   const email = await Email.findOne({
-    envelopeRecipient: "alice@email.fzeetechz.com",
+    envelopeRecipient: "alice@mailizator.com",
   });
   const id = String(email._id),
     attachmentId = String(email.attachments[0]._id);
@@ -166,34 +162,34 @@ test("expired messages are immediately hidden in list/detail/download before TTL
     404,
   );
   await Email.deleteOne({ _id: id });
-  await ingest(raw, ["alice@email.fzeetechz.com"], "sender@example.org");
+  await ingest(raw, ["alice@mailizator.com"], "sender@example.org");
   assert.equal(
     await Email.countDocuments({
-      envelopeRecipient: "alice@email.fzeetechz.com",
+      envelopeRecipient: "alice@mailizator.com",
     }),
     0,
   );
 });
 test("worker acknowledges persisted success and uses permanent vs temporary failure exit codes", async () => {
   const success = await worker(
-    ["--sender=sender@example.org", "--recipient=worker@email.fzeetechz.com"],
+    ["--sender=sender@example.org", "--recipient=worker@mailizator.com"],
     raw,
   );
   assert.equal(success.code, 0, success.stderr);
   assert.equal(
     await Email.countDocuments({
-      envelopeRecipient: "worker@email.fzeetechz.com",
+      envelopeRecipient: "worker@mailizator.com",
     }),
     1,
   );
   const retry = await worker(
-    ["--sender=sender@example.org", "--recipient=worker@email.fzeetechz.com"],
+    ["--sender=sender@example.org", "--recipient=worker@mailizator.com"],
     raw,
   );
   assert.equal(retry.code, 0);
   assert.equal(
     await Email.countDocuments({
-      envelopeRecipient: "worker@email.fzeetechz.com",
+      envelopeRecipient: "worker@mailizator.com",
     }),
     1,
   );
@@ -201,7 +197,7 @@ test("worker acknowledges persisted success and uses permanent vs temporary fail
   assert.equal(
     (
       await worker(
-        ["--recipient=bad@email.fzeetechz.com"],
+        ["--recipient=bad@mailizator.com"],
         Buffer.from("not an email"),
       )
     ).code,
@@ -211,7 +207,7 @@ test("worker acknowledges persisted success and uses permanent vs temporary fail
   assert.equal(
     (
       await worker(
-        ["--recipient=big@email.fzeetechz.com"],
+        ["--recipient=big@mailizator.com"],
         Buffer.alloc(3 * 1024 * 1024),
       )
     ).code,
@@ -219,7 +215,7 @@ test("worker acknowledges persisted success and uses permanent vs temporary fail
   );
   assert.equal(
     (
-      await worker(["--recipient=temp@email.fzeetechz.com"], raw, {
+      await worker(["--recipient=temp@mailizator.com"], raw, {
         MONGODB_URI: "mongodb://127.0.0.1:1/failure",
       })
     ).code,
@@ -233,12 +229,12 @@ test("global storage admission defers excess mail rather than acknowledging or s
     "From: test@example.org\r\nSubject: Quota\r\n\r\n" + "x".repeat(1100000),
   );
   await assert.rejects(
-    ingest(big, ["quota@email.fzeetechz.com"], "sender@example.org"),
+    ingest(big, ["quota@mailizator.com"], "sender@example.org"),
     (e: unknown) => e instanceof MailError && e.exitCode === 75,
   );
   assert.equal(
     await Email.countDocuments({
-      envelopeRecipient: "quota@email.fzeetechz.com",
+      envelopeRecipient: "quota@mailizator.com",
     }),
     0,
   );
@@ -246,7 +242,7 @@ test("global storage admission defers excess mail rather than acknowledging or s
   else delete process.env.MAX_STORED_BYTES;
 });
 test("interrupted delivery receipts preserve original expiry even after TTL cleanup", async () => {
-  const recipient = "interrupted@email.fzeetechz.com";
+  const recipient = "interrupted@mailizator.com";
   await ingest(raw, [recipient], "sender@example.org");
   const email = await Email.findOne({ envelopeRecipient: recipient });
   const receivedAt = new Date(Date.now() - 2 * 3600000);
@@ -268,11 +264,11 @@ test("interrupted delivery receipts preserve original expiry even after TTL clea
 test("styled MIME persists and the detail API retains safe presentation CSS", async () => {
   await ingest(
     await readFile("tests/fixtures/styled-email.eml"),
-    ["styled-test@email.fzeetechz.com"],
+    ["styled-test@mailizator.com"],
     "sender@example.org",
   );
   const email = await Email.findOne({
-    envelopeRecipient: "styled-test@email.fzeetechz.com",
+    envelopeRecipient: "styled-test@mailizator.com",
   });
   const response = await detailGET(new Request("http://localhost"), {
     params: Promise.resolve({ id: String(email._id) }),

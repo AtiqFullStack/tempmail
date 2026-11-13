@@ -23,11 +23,11 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="container nav">
-        <Link href="/" className="brand" aria-label="TempMail home">
+        <Link href="/" className="brand" aria-label="Mailizator home">
           <span className="brand-icon">
             <Mail size={23} />
           </span>
-          temp<span className="brand-light">mail</span>
+          maili<span className="brand-light">zator</span>
           <span className="brand-dot">.</span>
         </Link>
         <nav aria-label="Main navigation">
@@ -59,7 +59,7 @@ export function Footer() {
           <span className="brand-icon">
             <Mail size={21} />
           </span>
-          temp<span className="brand-light">mail</span>
+          maili<span className="brand-light">zator</span>
           <span className="brand-dot">.</span>
         </Link>
         <p>A little less clutter. A little more breathing room.</p>
@@ -69,7 +69,8 @@ export function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>
-          © {new Date().getFullYear()} Fzeetechz Pvt Ltd. Made for a lighter inbox.
+          © {new Date().getFullYear()} Fzeetechz Pvt Ltd. Made for a lighter
+          inbox.
         </span>
         <span>Receive only. No registration. No fuss.</span>
       </div>

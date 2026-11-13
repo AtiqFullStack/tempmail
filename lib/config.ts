@@ -7,8 +7,8 @@ const schema = z.object({
   MAIL_DOMAIN: z
     .string()
     .regex(/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/)
-    .default("email.fzeetechz.com"),
-  NEXT_PUBLIC_MAIL_DOMAIN: z.string().default("email.fzeetechz.com"),
+    .default("mailizator.com"),
+  NEXT_PUBLIC_MAIL_DOMAIN: z.string().default("mailizator.com"),
   MAIL_RETENTION_HOURS: z.coerce.number().positive().max(24).default(1),
   MAX_EMAIL_SIZE_MB: z.coerce.number().positive().max(10).default(2),
   MAX_STORED_BYTES: z.coerce

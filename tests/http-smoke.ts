@@ -14,8 +14,8 @@ import { Email } from "../models/Email";
     binary: { version: "8.0.17" },
   });
   process.env.MONGODB_URI = mongo.getUri("http_smoke");
-  process.env.MAIL_DOMAIN = "email.fzeetechz.com";
-  process.env.NEXT_PUBLIC_MAIL_DOMAIN = "email.fzeetechz.com";
+  process.env.MAIL_DOMAIN = "mailizator.com";
+  process.env.NEXT_PUBLIC_MAIL_DOMAIN = "mailizator.com";
   process.env.TRUST_PROXY = "false";
   const portProbe = createServer();
   portProbe.listen(0, "127.0.0.1");
@@ -54,7 +54,7 @@ import { Email } from "../models/Email";
     assert.ok(ready, "Production server must start");
     await ingest(
       await readFile("tests/fixtures/sample.eml"),
-      ["smoke@email.fzeetechz.com"],
+      ["smoke@mailizator.com"],
       "sender@example.org",
     );
     const home = await fetch(base);
@@ -83,7 +83,7 @@ import { Email } from "../models/Email";
     assert.match(await attachment.text(), /safe test attachment/);
     await ingest(
       await readFile("tests/fixtures/styled-email.eml"),
-      ["styled-http@email.fzeetechz.com"],
+      ["styled-http@mailizator.com"],
       "sender@example.org",
     );
     const styledList = await (

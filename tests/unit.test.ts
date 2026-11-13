@@ -25,17 +25,17 @@ test("username validation is bounded, canonical, and rejects path/HTML injection
 });
 test("envelope validation only accepts the configured domain", () => {
   assert.equal(
-    validateRecipient("ALEX@EMAIL.FZEETECHZ.COM", "email.fzeetechz.com"),
-    "alex@email.fzeetechz.com",
+    validateRecipient("ALEX@MAILIZATOR.COM", "mailizator.com"),
+    "alex@mailizator.com",
   );
   for (const address of [
     "a@gmail.com",
-    "a@email.fzeetechz.com.evil",
-    "a@b@email.fzeetechz.com",
+    "a@mailizator.com.evil",
+    "a@b@mailizator.com",
     "a",
-    "@email.fzeetechz.com",
+    "@mailizator.com",
   ])
-    assert.throws(() => validateRecipient(address, "email.fzeetechz.com"));
+    assert.throws(() => validateRecipient(address, "mailizator.com"));
 });
 test("sanitizer removes scripts, trackers, unsafe CSS, forms, SVG and unsafe URLs", () => {
   const result = sanitizeEmail(

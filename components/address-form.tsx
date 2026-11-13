@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 import { normalizeUsername } from "@/lib/validation";
 import { copyAddress, Toast } from "./shell";
-export const domain =
-  process.env.NEXT_PUBLIC_MAIL_DOMAIN || "email.fzeetechz.com";
+export const domain = process.env.NEXT_PUBLIC_MAIL_DOMAIN || "mailizator.com";
 export function randomName() {
   const words = [
     "mint",
@@ -99,9 +98,13 @@ export default function AddressForm() {
           </p>
         )}
         <div className="address-buttons">
-          <button className="button primary" type="submit" style={{
-            color:"white"
-          }}>
+          <button
+            className="button primary"
+            type="submit"
+            style={{
+              color: "white",
+            }}
+          >
             Open inbox <ArrowRight size={18} />
           </button>
           <button className="button secondary" type="button" onClick={generate}>

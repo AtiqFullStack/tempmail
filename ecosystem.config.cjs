@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "fzeetechz-tempmail",
-      cwd: "/srv/tempmail",
+      cwd: "/home/ubuntu/projects/tempmail",
       script: "node_modules/next/dist/bin/next",
       args: "start --hostname 127.0.0.1 --port 1117",
       instances: 1,

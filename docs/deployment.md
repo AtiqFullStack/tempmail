@@ -1,6 +1,6 @@
 # Existing Ubuntu VPS deployment
 
-Target: `194.238.19.154`, web domain `email.fzeetechz.com`, SMTP hostname `mail.email.fzeetechz.com`. This repository contains configuration examples, not an installer. No live services have been changed.
+Target: `194.238.19.154`, web domain `mailizator.com`, SMTP hostname `mail.mailizator.com`. This repository contains configuration examples, not an installer. For the existing server cutover, start with [mailizator-migration.md](mailizator-migration.md). No live services have been changed.
 
 ## Runtime and local setup
 
@@ -22,7 +22,7 @@ Local ingestion into your configured MongoDB:
 bun run test:ingest
 curl http://localhost:1117/api/inbox/local-test
 # Or directly exercise the actual stdin worker:
-node --import tsx workers/receive-mail.js --sender=sender@example.org --recipient=local-test@email.fzeetechz.com < tests/fixtures/sample.eml
+node --import tsx workers/receive-mail.js --sender=sender@example.org --recipient=local-test@mailizator.com < tests/fixtures/sample.eml
 echo $?
 ```
 
@@ -38,7 +38,7 @@ Run `bun run db:indexes` before enabling traffic. Worker startup also ensures in
 
 ## Build and process supervision
 
-Deploy the checked-out release to `/srv/tempmail` with a dedicated `tempmail` account. Inspect the example's port 1117 and process name for collisions before enabling them. Install/build as the deployment owner, then give the runtime account read/execute access without write access to the code.
+Deploy the checked-out release to `/home/ubuntu/projects/tempmail` with a dedicated `tempmail` account. Inspect the example's port 1117 and process name for collisions before enabling them. Install/build as the deployment owner, then give the runtime account read/execute access without write access to the code.
 
 ```sh
 bun install --frozen-lockfile
@@ -58,30 +58,24 @@ The integration suite downloads a roughly 77 MB isolated MongoDB test binary on 
 
 ## Nginx and TLS
 
-Use [nginx.conf](nginx.conf) as a **new dedicated vhost**. The rate zone belongs inside the existing `http {}` context, outside server blocks. Issue a TLS certificate for `email.fzeetechz.com` using your existing ACME process before enabling the TLS configuration. Preserve all other vhosts. Do not modify the default server. Back up the existing configuration, run `sudo nginx -t`, then manually reload Nginx. Avoid proxy caching for inboxes/API/attachments. If using a CDN, configure Nginx real IP trust only for verified CDN ranges before trusting its derived client address; do not trust arbitrary forwarded headers.
+Use [nginx.conf](nginx.conf) as a **new dedicated vhost**. The rate zone belongs inside the existing `http {}` context, outside server blocks. Issue a TLS certificate for `mailizator.com` using your existing ACME process before enabling the TLS configuration. Preserve all other vhosts. Do not modify the default server. Back up the existing configuration, run `sudo nginx -t`, then manually reload Nginx. Avoid proxy caching for inboxes/API/attachments. If using a CDN, configure Nginx real IP trust only for verified CDN ranges before trusting its derived client address; do not trust arbitrary forwarded headers.
 
 `X-Real-IP` is overwritten at Nginx. Application rate limiting uses shared MongoDB minute buckets (120 requests/minute/client across all APIs); Nginx adds a 2 requests/second limit with burst 15. Without the trusted reverse proxy, the application deliberately shares one direct bucket instead of trusting spoofed client headers. Restrict the Next port to loopback. Security headers are supplied by Next, and HTTPS HSTS by the TLS vhost. The HTML viewer has a separate restrictive CSP and sandbox, no scripts, forms, remote images or remote styles. Safe inline colors, typography, spacing, borders, and table layout are preserved. Embedded stylesheet rules are inlined locally using Juice, then filtered through a strict CSS property/value allowlist; external stylesheets, web fonts, CSS URLs, positioning, and animation are discarded. Selector work is bounded; oversized templates fall back to inline-style sanitization. The viewer defaults to HTML when available, with plain text selectable. Allowed links open separately with no referrer/opener.
 
 ## DNS and SMTP connectivity
 
-Read-only DNS lookup performed 2026-11-12:
+Read-only DNS lookup performed 2026-11-13: root A `mailizator.com` resolves to `194.238.19.154`; `mail.mailizator.com` A and root MX returned no answers. Required MX: `mailizator.com -> mail.mailizator.com` priority 10. Add the missing DNS records before external receiving. Follow [the actual cutover guide](mailizator-migration.md).
 
-```text
-mail.email.fzeetechz.com A -> 194.238.19.154
-email.fzeetechz.com A      -> 194.238.19.154
-email.fzeetechz.com MX     -> 10 email.fzeetechz.com.
-```
-
-The MX currently differs from the requested `10 mail.email.fzeetechz.com.`. Both names resolve to the given VPS today, but update the MX in your DNS provider to match the intended SMTP hostname and allow propagation. Recheck immediately before deployment:
+Recheck immediately before deployment:
 
 ```sh
-dig +short A email.fzeetechz.com
-dig +short A mail.email.fzeetechz.com
-dig +short MX email.fzeetechz.com
-dig +short AAAA mail.email.fzeetechz.com
+dig +short A mailizator.com
+dig +short A mail.mailizator.com
+dig +short MX mailizator.com
+dig +short AAAA mail.mailizator.com
 ```
 
-Remove or fix an unusable AAAA record rather than publishing IPv6 without a working listener. From a separate external machine test `nc -vz mail.email.fzeetechz.com 25`; from the VPS inspect `sudo ss -lntp '( sport = :25 )'` and the existing firewall/provider security group. Inbound TCP 25 must be allowed by the VPS provider and operator-managed firewall. No firewall rules are changed by this repository. Ask the provider to confirm inbound/outbound TCP 25 policy; outbound SMTP is not needed for this receive-only application, but Postfix may generate delivery-status notifications. Do not assume a localhost TCP connection demonstrates Internet reachability.
+Remove or fix an unusable AAAA record rather than publishing IPv6 without a working listener. From a separate external machine test `nc -vz mail.mailizator.com 25`; from the VPS inspect `sudo ss -lntp '( sport = :25 )'` and the existing firewall/provider security group. Inbound TCP 25 must be allowed by the VPS provider and operator-managed firewall. No firewall rules are changed by this repository. Ask the provider to confirm inbound/outbound TCP 25 policy; outbound SMTP is not needed for this receive-only application, but Postfix may generate delivery-status notifications. Do not assume a localhost TCP connection demonstrates Internet reachability.
 
 Follow [postfix-setup.md](postfix-setup.md) for the exact additive maps and pipe transport. Complete external Gmail/Outlook tests only after DNS, network, and Postfix validation. No local test proves external SMTP delivery.
 
